@@ -1,0 +1,14 @@
+name = "webhook-worker"
+main = "src/index.js"
+compatibility_date = "2024-11-24"
+
+kv_namespaces = [
+  { binding = "KV_STUDENTS", id = "cc7047e7553b4f668b230f6c8d197594", preview_id = "3b8e08a706fe45469fde34b64beb2e0c" }
+]
+
+[observability]
+enabled = true
+
+[vars]
+STRIPE_WEBHOOK_SECRET = "whsec_NgAHfBoLS3hrQiVqcDWTwqsHouDvt4zb"
+STRIPE_API_KEY = "sk_test_51QSoAD08ZvYK1j3bbe7ui0dcKaQwLkClxb4MxzGwSbXwrjSvpQ6Cyq5lirwrFuEjqSnpbgfERW4vmDZLoRClxncj00BoL8rxcA"
