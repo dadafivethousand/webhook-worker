@@ -19,9 +19,6 @@ export default {
 // Function to handle Stripe Webhook
 async function handleStripeWebhook(request, env) {
     try {
-    
-        
-	 
         const rawBody = await request.text();
         const stripeSignature = request.headers.get("stripe-signature");
         const endpointSecret = env.STRIPE_WEBHOOK_SECRET;
@@ -53,17 +50,17 @@ async function handleStripeWebhook(request, env) {
             console.log(`✅ Payment completed for customer: ${email}`);
 
             const key = `student:${email}`;
-            await env.KV_STUDENTS.put(
-                key,
-                JSON.stringify({
-                    customerId,
-                    email,
-                    kids,
-                    paymentStatus: "completed",
-                    amountPaid: session.items.data[0].plan.amount / 100, // Amount in dollars
-                    createdAt: new Date().toISOString(),
-                })
-            );
+            const existingValue = await env.KV_STUDENTS.get(key, { type: "json" });
+
+            if (!existingValue) {
+                throw new Error(`No existing data found for key: ${key}`);
+            }
+            
+            // Step 2: Update the paymentStatus field
+            const updatedValue = { ...existingValue, paymentStatus: "completed" };
+            
+            // Step 3: Save the updated object back to KV
+            await env.KV_STUDENTS.put(key, JSON.stringify(updatedValue));
         }
 
         return new Response("Webhook processed", { status: 200 });
@@ -97,7 +94,7 @@ async function verifyStripeSignature(payload, signatureHeader, secret) {
     const computedSignature = [...new Uint8Array(signedPayloadHash)]
         .map((byte) => byte.toString(16).padStart(2, "0"))
         .join("");
-
+        console.log("UnSigned payload:", payload);
     console.log("Signed payload:", signedPayload);
     console.log("Computed signature:", computedSignature);
     console.log("Stripe signatures:", signatures);
